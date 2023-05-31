@@ -52,6 +52,8 @@ public:
 private:
 	friend class Main;
 
+	uint8_t _physics_frame_repeat = 0;
+
 	uint64_t frames_drawn = 0;
 	uint32_t _frame_delay = 0;
 	uint64_t _frame_ticks = 0;
@@ -90,6 +92,9 @@ private:
 
 public:
 	static Engine *get_singleton();
+
+	virtual void set_physics_frame_repeat(uint8_t p_times);
+	virtual uint8_t get_physics_frame_repeat() const { return _physics_frame_repeat; }
 
 	virtual void set_physics_ticks_per_second(int p_ips);
 	virtual int get_physics_ticks_per_second() const;

@@ -39,6 +39,11 @@
 #include "core/variant/typed_array.h"
 #include "core/version.h"
 
+void Engine::set_physics_frame_repeat(uint8_t p_times) {
+	ERR_FAIL_COND_MSG(p_times < 0 && p_times > 255, "Engine physics frame repeat must be greater than 0 and equal or less than 255.");
+	_physics_frame_repeat = p_times;
+}
+
 void Engine::set_physics_ticks_per_second(int p_ips) {
 	ERR_FAIL_COND_MSG(p_ips <= 0, "Engine iterations per second must be greater than 0.");
 	ips = p_ips;

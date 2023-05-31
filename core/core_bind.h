@@ -458,6 +458,10 @@ protected:
 
 public:
 	static Engine *get_singleton() { return singleton; }
+
+	void set_physics_frame_repeat(uint8_t p_times);
+	uint8_t get_physics_frame_repeat() const;
+
 	void set_physics_ticks_per_second(int p_ips);
 	int get_physics_ticks_per_second() const;
 

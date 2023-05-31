@@ -1458,6 +1458,14 @@ void ClassDB::_bind_methods() {
 
 ////// Engine //////
 
+void Engine::set_physics_frame_repeat(uint8_t p_times) {
+	::Engine::get_singleton()->set_physics_frame_repeat(p_times);
+}
+
+uint8_t Engine::get_physics_frame_repeat() const {
+	return ::Engine::get_singleton()->get_physics_frame_repeat();
+}
+
 void Engine::set_physics_ticks_per_second(int p_ips) {
 	::Engine::get_singleton()->set_physics_ticks_per_second(p_ips);
 }
@@ -1627,6 +1635,8 @@ bool Engine::is_printing_error_messages() const {
 }
 
 void Engine::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_physics_frame_repeat", "physics_frame_repeat"), &Engine::set_physics_frame_repeat);
+	ClassDB::bind_method(D_METHOD("get_physics_frame_repeat"), &Engine::get_physics_frame_repeat);
 	ClassDB::bind_method(D_METHOD("set_physics_ticks_per_second", "physics_ticks_per_second"), &Engine::set_physics_ticks_per_second);
 	ClassDB::bind_method(D_METHOD("get_physics_ticks_per_second"), &Engine::get_physics_ticks_per_second);
 	ClassDB::bind_method(D_METHOD("set_max_physics_steps_per_frame", "max_physics_steps"), &Engine::set_max_physics_steps_per_frame);
