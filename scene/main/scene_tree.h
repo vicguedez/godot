@@ -277,7 +277,11 @@ public:
 
 	virtual void initialize() override;
 
+	virtual bool before_physics_process() override;
+	virtual bool after_physics_process() override;
 	virtual bool physics_process(double p_time) override;
+	virtual bool before_process() override;
+	virtual bool after_process() override;
 	virtual bool process(double p_time) override;
 
 	virtual void finalize() override;

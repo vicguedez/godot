@@ -133,7 +133,11 @@ private:
 
 		// Variables used to properly sort the node when processing, ignored otherwise.
 		// TODO: Should move all the stuff below to bits.
+		bool before_physics_process = false;
+		bool after_physics_process = false;
 		bool physics_process = false;
+		bool before_process = false;
+		bool after_process = false;
 		bool process = false;
 		int process_priority = 0;
 
@@ -235,8 +239,13 @@ protected:
 	virtual void unhandled_input(const Ref<InputEvent> &p_event);
 	virtual void unhandled_key_input(const Ref<InputEvent> &p_key_event);
 
+	GDVIRTUAL0(_before_process)
+	GDVIRTUAL0(_after_process)
 	GDVIRTUAL1(_process, double)
+	GDVIRTUAL0(_before_physics_process)
+	GDVIRTUAL0(_after_physics_process)
 	GDVIRTUAL1(_physics_process, double)
+	
 	GDVIRTUAL0(_enter_tree)
 	GDVIRTUAL0(_exit_tree)
 	GDVIRTUAL0(_ready)
@@ -256,7 +265,11 @@ public:
 		NOTIFICATION_READY = 13,
 		NOTIFICATION_PAUSED = 14,
 		NOTIFICATION_UNPAUSED = 15,
+		NOTIFICATION_BEFORE_PHYSICS_PROCESS = 16000,
+		NOTIFICATION_AFTER_PHYSICS_PROCESS = 16001,
 		NOTIFICATION_PHYSICS_PROCESS = 16,
+		NOTIFICATION_BEFORE_PROCESS = 17000,
+		NOTIFICATION_AFTER_PROCESS = 17001,
 		NOTIFICATION_PROCESS = 17,
 		NOTIFICATION_PARENTED = 18,
 		NOTIFICATION_UNPARENTED = 19,
@@ -394,9 +407,15 @@ public:
 	void propagate_call(const StringName &p_method, const Array &p_args = Array(), const bool p_parent_first = false);
 
 	/* PROCESSING */
+	void set_before_physics_process(bool p_before);
+	void set_after_physics_process(bool p_after);
+	
 	void set_physics_process(bool p_process);
 	double get_physics_process_delta_time() const;
 	bool is_physics_processing() const;
+
+	void set_before_process(bool p_before);
+	void set_after_process(bool p_after);
 
 	void set_process(bool p_process);
 	double get_process_delta_time() const;

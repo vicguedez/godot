@@ -411,6 +411,44 @@ void SceneTree::initialize() {
 	MainLoop::initialize();
 }
 
+bool SceneTree::before_physics_process() {
+	root_lock++;
+
+	MainLoop::before_physics_process();
+	
+	_notify_group_pause(SNAME("_before_physics_process"), Node::NOTIFICATION_BEFORE_PHYSICS_PROCESS);
+	_flush_ugc();
+
+	MessageQueue::get_singleton()->flush();
+
+	flush_transform_notifications();
+	root_lock--;
+
+	_flush_delete_queue();
+	_call_idle_callbacks();
+
+	return _quit;
+}
+
+bool SceneTree::after_physics_process() {
+	root_lock++;
+
+	MainLoop::after_physics_process();
+	
+	_notify_group_pause(SNAME("_after_physics_process"), Node::NOTIFICATION_AFTER_PHYSICS_PROCESS);
+	_flush_ugc();
+
+	MessageQueue::get_singleton()->flush();
+
+	flush_transform_notifications();
+	root_lock--;
+
+	_flush_delete_queue();
+	_call_idle_callbacks();
+
+	return _quit;
+}
+
 bool SceneTree::physics_process(double p_time) {
 	root_lock++;
 
@@ -433,6 +471,44 @@ bool SceneTree::physics_process(double p_time) {
 
 	process_tweens(p_time, true);
 
+	flush_transform_notifications();
+	root_lock--;
+
+	_flush_delete_queue();
+	_call_idle_callbacks();
+
+	return _quit;
+}
+
+bool SceneTree::before_process() {
+	root_lock++;
+
+	MainLoop::before_process();
+
+	_notify_group_pause(SNAME("_before_process"), Node::NOTIFICATION_BEFORE_PROCESS);
+	_flush_ugc();
+
+	MessageQueue::get_singleton()->flush(); //small little hack
+	
+	flush_transform_notifications();
+	root_lock--;
+
+	_flush_delete_queue();
+	_call_idle_callbacks();
+
+	return _quit;
+}
+
+bool SceneTree::after_process() {
+	root_lock++;
+
+	MainLoop::after_process();
+
+	_notify_group_pause(SNAME("_after_process"), Node::NOTIFICATION_AFTER_PROCESS);
+	_flush_ugc();
+
+	MessageQueue::get_singleton()->flush(); //small little hack
+	
 	flush_transform_notifications();
 	root_lock--;
 

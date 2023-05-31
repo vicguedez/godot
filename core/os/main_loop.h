@@ -45,7 +45,11 @@ protected:
 	static void _bind_methods();
 
 	GDVIRTUAL0(_initialize)
+	GDVIRTUAL0R(bool, _before_physics_process)
+	GDVIRTUAL0R(bool, _after_physics_process)
 	GDVIRTUAL1R(bool, _physics_process, double)
+	GDVIRTUAL0R(bool, _before_process)
+	GDVIRTUAL0R(bool, _after_process)
 	GDVIRTUAL1R(bool, _process, double)
 	GDVIRTUAL0(_finalize)
 
@@ -65,7 +69,11 @@ public:
 	};
 
 	virtual void initialize();
+	virtual bool before_physics_process();
+	virtual bool after_physics_process();
 	virtual bool physics_process(double p_time);
+	virtual bool before_process();
+	virtual bool after_process();
 	virtual bool process(double p_time);
 	virtual void finalize();
 

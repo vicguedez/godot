@@ -95,7 +95,11 @@ SceneStringNames::SceneStringNames() {
 	update = StaticCString::create("update");
 	updated = StaticCString::create("updated");
 
+	_before_physics_process = StaticCString::create("_before_physics_process");
+	_after_physics_process = StaticCString::create("_after_physics_process");
 	_physics_process = StaticCString::create("_physics_process");
+	_before_process = StaticCString::create("_before_process");
+	_after_process = StaticCString::create("_after_process");
 	_process = StaticCString::create("_process");
 
 	_enter_tree = StaticCString::create("_enter_tree");

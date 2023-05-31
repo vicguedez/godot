@@ -47,7 +47,11 @@ void MainLoop::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("on_request_permissions_result", PropertyInfo(Variant::STRING, "permission"), PropertyInfo(Variant::BOOL, "granted")));
 
 	GDVIRTUAL_BIND(_initialize);
+	GDVIRTUAL_BIND(_before_physics_process);
+	GDVIRTUAL_BIND(_after_physics_process);
 	GDVIRTUAL_BIND(_physics_process, "delta");
+	GDVIRTUAL_BIND(_before_process);
+	GDVIRTUAL_BIND(_after_process);
 	GDVIRTUAL_BIND(_process, "delta");
 	GDVIRTUAL_BIND(_finalize);
 }
@@ -64,9 +68,33 @@ void MainLoop::initialize() {
 	GDVIRTUAL_CALL(_initialize);
 }
 
+bool MainLoop::before_physics_process() {
+	bool quit = false;
+	GDVIRTUAL_CALL(_before_physics_process, quit);
+	return quit;
+}
+
+bool MainLoop::after_physics_process() {
+	bool quit = false;
+	GDVIRTUAL_CALL(_after_physics_process, quit);
+	return quit;
+}
+
 bool MainLoop::physics_process(double p_time) {
 	bool quit = false;
 	GDVIRTUAL_CALL(_physics_process, p_time, quit);
+	return quit;
+}
+
+bool MainLoop::before_process() {
+	bool quit = false;
+	GDVIRTUAL_CALL(_before_process, quit);
+	return quit;
+}
+
+bool MainLoop::after_process() {
+	bool quit = false;
+	GDVIRTUAL_CALL(_after_process, quit);
 	return quit;
 }
 

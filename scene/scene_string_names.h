@@ -115,7 +115,11 @@ public:
 	StringName _body_inout;
 	StringName _area_inout;
 
+	StringName _before_physics_process;
+	StringName _after_physics_process;
 	StringName _physics_process;
+	StringName _before_process;
+	StringName _after_process;
 	StringName _process;
 	StringName _enter_world;
 	StringName _exit_world;

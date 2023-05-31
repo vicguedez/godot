@@ -53,8 +53,24 @@ int Node::orphan_node_count = 0;
 
 void Node::_notification(int p_notification) {
 	switch (p_notification) {
+		case NOTIFICATION_BEFORE_PROCESS: {
+			GDVIRTUAL_CALL(_before_process);
+		} break;
+
+		case NOTIFICATION_AFTER_PROCESS: {
+			GDVIRTUAL_CALL(_after_process);
+		} break;
+
 		case NOTIFICATION_PROCESS: {
 			GDVIRTUAL_CALL(_process, get_process_delta_time());
+		} break;
+
+		case NOTIFICATION_BEFORE_PHYSICS_PROCESS: {
+			GDVIRTUAL_CALL(_before_physics_process);
+		} break;
+
+		case NOTIFICATION_AFTER_PHYSICS_PROCESS: {
+			GDVIRTUAL_CALL(_after_physics_process);
 		} break;
 
 		case NOTIFICATION_PHYSICS_PROCESS: {
@@ -145,9 +161,26 @@ void Node::_notification(int p_notification) {
 				set_process_unhandled_key_input(true);
 			}
 
+			if (GDVIRTUAL_IS_OVERRIDDEN(_before_process)) {
+				set_before_process(true);
+			}
+
+			if (GDVIRTUAL_IS_OVERRIDDEN(_after_process)) {
+				set_after_process(true);
+			}
+
 			if (GDVIRTUAL_IS_OVERRIDDEN(_process)) {
 				set_process(true);
 			}
+
+			if (GDVIRTUAL_IS_OVERRIDDEN(_before_physics_process)) {
+				set_before_physics_process(true);
+			}
+
+			if (GDVIRTUAL_IS_OVERRIDDEN(_after_physics_process)) {
+				set_after_physics_process(true);
+			}
+
 			if (GDVIRTUAL_IS_OVERRIDDEN(_physics_process)) {
 				set_physics_process(true);
 			}
@@ -428,6 +461,34 @@ void Node::move_child_notify(Node *p_child) {
 void Node::owner_changed_notify() {
 }
 
+void Node::set_before_physics_process(bool p_before) {
+	if (data.before_physics_process == p_before) {
+		return;
+	}
+
+	data.before_physics_process = p_before;
+
+	if (data.before_physics_process) {
+		add_to_group(SNAME("_before_physics_process"), false);
+	} else {
+		remove_from_group(SNAME("_before_physics_process"));
+	}
+}
+
+void Node::set_after_physics_process(bool p_after) {
+	if (data.after_physics_process == p_after) {
+		return;
+	}
+
+	data.after_physics_process = p_after;
+
+	if (data.after_physics_process) {
+		add_to_group(SNAME("_after_physics_process"), false);
+	} else {
+		remove_from_group(SNAME("_after_physics_process"));
+	}
+}
+
 void Node::set_physics_process(bool p_process) {
 	if (data.physics_process == p_process) {
 		return;
@@ -666,8 +727,16 @@ Ref<MultiplayerAPI> Node::get_multiplayer() const {
 
 bool Node::can_process_notification(int p_what) const {
 	switch (p_what) {
+		case NOTIFICATION_BEFORE_PHYSICS_PROCESS:
+			return data.before_physics_process;
+		case NOTIFICATION_AFTER_PHYSICS_PROCESS:
+			return data.after_physics_process;
 		case NOTIFICATION_PHYSICS_PROCESS:
 			return data.physics_process;
+		case NOTIFICATION_BEFORE_PROCESS:
+			return data.before_process;
+		case NOTIFICATION_AFTER_PROCESS:
+			return data.after_process;
 		case NOTIFICATION_PROCESS:
 			return data.process;
 		case NOTIFICATION_INTERNAL_PROCESS:
@@ -747,6 +816,34 @@ double Node::get_process_delta_time() const {
 		return data.tree->get_process_time();
 	} else {
 		return 0;
+	}
+}
+
+void Node::set_before_process(bool p_before) {
+	if (data.before_process == p_before) {
+		return;
+	}
+
+	data.before_process = p_before;
+
+	if (data.before_process) {
+		add_to_group(SNAME("_before_process"), false);
+	} else {
+		remove_from_group(SNAME("_before_process"));
+	}
+}
+
+void Node::set_after_process(bool p_after) {
+	if (data.after_process == p_after) {
+		return;
+	}
+
+	data.after_process = p_after;
+
+	if (data.after_process) {
+		add_to_group(SNAME("_after_process"), false);
+	} else {
+		remove_from_group(SNAME("_after_process"));
 	}
 }
 
@@ -2855,10 +2952,14 @@ void Node::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_scene_file_path"), &Node::get_scene_file_path);
 	ClassDB::bind_method(D_METHOD("propagate_notification", "what"), &Node::propagate_notification);
 	ClassDB::bind_method(D_METHOD("propagate_call", "method", "args", "parent_first"), &Node::propagate_call, DEFVAL(Array()), DEFVAL(false));
+	ClassDB::bind_method(D_METHOD("set_before_physics_process", "enable"), &Node::set_before_physics_process);
+	ClassDB::bind_method(D_METHOD("set_after_physics_process", "enable"), &Node::set_after_physics_process);
 	ClassDB::bind_method(D_METHOD("set_physics_process", "enable"), &Node::set_physics_process);
 	ClassDB::bind_method(D_METHOD("get_physics_process_delta_time"), &Node::get_physics_process_delta_time);
 	ClassDB::bind_method(D_METHOD("is_physics_processing"), &Node::is_physics_processing);
 	ClassDB::bind_method(D_METHOD("get_process_delta_time"), &Node::get_process_delta_time);
+	ClassDB::bind_method(D_METHOD("set_before_process", "enable"), &Node::set_before_process);
+	ClassDB::bind_method(D_METHOD("set_after_process", "enable"), &Node::set_after_process);
 	ClassDB::bind_method(D_METHOD("set_process", "enable"), &Node::set_process);
 	ClassDB::bind_method(D_METHOD("set_process_priority", "priority"), &Node::set_process_priority);
 	ClassDB::bind_method(D_METHOD("get_process_priority"), &Node::get_process_priority);
@@ -2948,7 +3049,11 @@ void Node::_bind_methods() {
 	BIND_CONSTANT(NOTIFICATION_READY);
 	BIND_CONSTANT(NOTIFICATION_PAUSED);
 	BIND_CONSTANT(NOTIFICATION_UNPAUSED);
+	BIND_CONSTANT(NOTIFICATION_BEFORE_PHYSICS_PROCESS);
+	BIND_CONSTANT(NOTIFICATION_AFTER_PHYSICS_PROCESS);
 	BIND_CONSTANT(NOTIFICATION_PHYSICS_PROCESS);
+	BIND_CONSTANT(NOTIFICATION_BEFORE_PROCESS);
+	BIND_CONSTANT(NOTIFICATION_AFTER_PROCESS);
 	BIND_CONSTANT(NOTIFICATION_PROCESS);
 	BIND_CONSTANT(NOTIFICATION_PARENTED);
 	BIND_CONSTANT(NOTIFICATION_UNPARENTED);
@@ -3023,7 +3128,11 @@ void Node::_bind_methods() {
 	ADD_GROUP("Editor Description", "editor_");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "editor_description", PROPERTY_HINT_MULTILINE_TEXT), "set_editor_description", "get_editor_description");
 
+	GDVIRTUAL_BIND(_before_process);
+	GDVIRTUAL_BIND(_after_process);
 	GDVIRTUAL_BIND(_process, "delta");
+	GDVIRTUAL_BIND(_before_physics_process);
+	GDVIRTUAL_BIND(_after_physics_process);
 	GDVIRTUAL_BIND(_physics_process, "delta");
 	GDVIRTUAL_BIND(_enter_tree);
 	GDVIRTUAL_BIND(_exit_tree);

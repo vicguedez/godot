@@ -3120,43 +3120,66 @@ bool Main::iteration() {
 
 		Engine::get_singleton()->_in_physics = true;
 
-		uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
-
-		PhysicsServer3D::get_singleton()->sync();
-		PhysicsServer3D::get_singleton()->flush_queries();
-
-		PhysicsServer2D::get_singleton()->sync();
-		PhysicsServer2D::get_singleton()->flush_queries();
-
-		if (OS::get_singleton()->get_main_loop()->physics_process(physics_step * time_scale)) {
-			PhysicsServer3D::get_singleton()->end_sync();
-			PhysicsServer2D::get_singleton()->end_sync();
-
+		if (OS::get_singleton()->get_main_loop()->before_physics_process()) {
 			exit = true;
 			break;
 		}
+		message_queue->flush();
+		
+		uint8_t repeat = 0;
 
-		uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
+		do {
+			uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
-		NavigationServer3D::get_singleton()->process(physics_step * time_scale);
+			PhysicsServer3D::get_singleton()->sync();
+			PhysicsServer3D::get_singleton()->flush_queries();
 
-		navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
-		navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
+			PhysicsServer2D::get_singleton()->sync();
+			PhysicsServer2D::get_singleton()->flush_queries();
 
+			if (OS::get_singleton()->get_main_loop()->physics_process(physics_step * time_scale)) {
+				PhysicsServer3D::get_singleton()->end_sync();
+				PhysicsServer2D::get_singleton()->end_sync();
+
+				exit = true;
+				break;
+			}
+
+			uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
+
+			NavigationServer3D::get_singleton()->process(physics_step * time_scale);
+
+			navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
+			navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
+
+			message_queue->flush();
+
+			PhysicsServer3D::get_singleton()->end_sync();
+			PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
+
+			PhysicsServer2D::get_singleton()->end_sync();
+			PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
+
+			message_queue->flush();
+
+			physics_process_ticks = MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
+			physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
+			Engine::get_singleton()->_physics_frames++;
+
+			repeat += 1;
+		} while (repeat <= Engine::get_singleton()->_physics_frame_repeat);
+
+		if (exit) {
+			break;
+		}
+
+		if (OS::get_singleton()->get_main_loop()->after_physics_process()) {
+			exit = true;
+			break;
+		}
 		message_queue->flush();
 
-		PhysicsServer3D::get_singleton()->end_sync();
-		PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
-
-		PhysicsServer2D::get_singleton()->end_sync();
-		PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
-
-		message_queue->flush();
-
-		physics_process_ticks = MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
-		physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
-		Engine::get_singleton()->_physics_frames++;
-
+		Engine::get_singleton()->_physics_frame_repeat = 0;
 		Engine::get_singleton()->_in_physics = false;
 	}
 
@@ -3164,9 +3187,19 @@ bool Main::iteration() {
 		Input::get_singleton()->flush_buffered_events();
 	}
 
+	if (OS::get_singleton()->get_main_loop()->before_process()) {
+		exit = true;
+	}
+	message_queue->flush();
+
 	uint64_t process_begin = OS::get_singleton()->get_ticks_usec();
 
 	if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
+		exit = true;
+	}
+	message_queue->flush();
+
+	if (OS::get_singleton()->get_main_loop()->after_process()) {
 		exit = true;
 	}
 	message_queue->flush();
