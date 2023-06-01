@@ -585,6 +585,7 @@ public:
 	virtual void sync() = 0;
 	virtual void flush_queries() = 0;
 	virtual void end_sync() = 0;
+	virtual void force_sync() = 0;
 	virtual void finish() = 0;
 
 	virtual bool is_flushing_queries() const = 0;

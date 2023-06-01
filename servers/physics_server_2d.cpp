@@ -615,6 +615,8 @@ bool PhysicsServer2D::_body_test_motion(RID p_body, const Ref<PhysicsTestMotionP
 }
 
 void PhysicsServer2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("force_sync"), &PhysicsServer2D::force_sync);
+
 	ClassDB::bind_method(D_METHOD("world_boundary_shape_create"), &PhysicsServer2D::world_boundary_shape_create);
 	ClassDB::bind_method(D_METHOD("separation_ray_shape_create"), &PhysicsServer2D::separation_ray_shape_create);
 	ClassDB::bind_method(D_METHOD("segment_shape_create"), &PhysicsServer2D::segment_shape_create);

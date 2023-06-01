@@ -292,6 +292,7 @@ public:
 	virtual void sync() override;
 	virtual void flush_queries() override;
 	virtual void end_sync() override;
+	virtual void force_sync() override;
 	virtual void finish() override;
 
 	virtual bool is_flushing_queries() const override { return flushing_queries; }

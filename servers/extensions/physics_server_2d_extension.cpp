@@ -334,6 +334,7 @@ void PhysicsServer2DExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_sync);
 	GDVIRTUAL_BIND(_flush_queries);
 	GDVIRTUAL_BIND(_end_sync);
+	GDVIRTUAL_BIND(_force_sync);
 	GDVIRTUAL_BIND(_finish);
 
 	GDVIRTUAL_BIND(_is_flushing_queries);

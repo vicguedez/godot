@@ -1345,6 +1345,17 @@ void GodotPhysicsServer2D::end_sync() {
 	doing_sync = false;
 }
 
+void GodotPhysicsServer2D::force_sync() {
+	const int physics_ticks_per_second = Engine::get_singleton()->get_physics_ticks_per_second();
+	const double physics_step = 1.0 / physics_ticks_per_second;
+	const double time_scale = Engine::get_singleton()->get_time_scale();
+
+	sync();
+	flush_queries();
+	end_sync();
+	step(physics_step * time_scale);
+}
+
 void GodotPhysicsServer2D::finish() {
 	memdelete(stepper);
 }

@@ -94,6 +94,10 @@ void PhysicsServer2DWrapMT::end_sync() {
 	physics_server_2d->end_sync();
 }
 
+void PhysicsServer2DWrapMT::force_sync() {
+	physics_server_2d->force_sync();
+}
+
 void PhysicsServer2DWrapMT::init() {
 	if (create_thread) {
 		//OS::get_singleton()->release_rendering_thread();

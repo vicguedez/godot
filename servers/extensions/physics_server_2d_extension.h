@@ -441,6 +441,7 @@ public:
 	EXBIND0(sync)
 	EXBIND0(flush_queries)
 	EXBIND0(end_sync)
+	EXBIND0(force_sync)
 	EXBIND0(finish)
 
 	EXBIND0RC(bool, is_flushing_queries)
